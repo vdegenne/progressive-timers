@@ -18,32 +18,42 @@ export class TimerElement extends LitElement {
   @property({reflect: true})
   protected state: 'stopped'|'paused'|'running' = 'stopped';
 
+  @property({type: Boolean, reflect: true}) protected notified = false;
+
   protected _interval?: NodeJS.Timeout;
 
   public static styles = [css`
     :host {
       display: block;
-      padding: 8px 16px;
-      min-width: 100px;
+      padding: 8px 8px 8px 16px;
     }
 
     :host([state=stopped]) {
-      background-color: black;
+      background-color: grey;
       color: white;
     }
     :host([state=running]) {
-      background-color: #4caf50;
+      background-color: red;
       color: white;
     }
     :host([state=paused]) {
-      background-color: grey;
+      background-color: green;
       color: white;
+    }
+
+    :host([notified]) {
+      background-color: yellow;
+      color: black;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    header > div:first-of-type {
+      margin: 0 26px 0 0;
     }
 
     mwc-icon {
@@ -67,6 +77,7 @@ export class TimerElement extends LitElement {
         <mwc-icon @click=${this.toggleRun}>
           ${this.state === 'stopped' ? 'play_arrow' : 'stop'}
         </mwc-icon>
+        <mwc-icon @click=${this.destruct}>delete</mwc-icon>
       </div>
     </header>
 
@@ -74,6 +85,23 @@ export class TimerElement extends LitElement {
       ${this._countDown !== 0 ? this._countDown : this.initialTime}
     </div>
     `;
+  }
+
+  constructor() {
+    super();
+    this.addEventListener('mouseenter', () => {
+      this.notified = false;
+    });
+  }
+
+  protected destruct() {
+    const answer = confirm('are you sure ?');
+    if (!answer) {
+      return;
+    }
+    app.timers.splice(app.timers.indexOf(this), 1);
+    app.saveTimers();
+    app.requestUpdate();
   }
 
   protected toggleRun() {
@@ -117,6 +145,12 @@ export class TimerElement extends LitElement {
       this._level++;
       this.run(this._level);
     }
+
+    this.notify();
+  }
+
+  notify() {
+    this.notified = true;
     app.trumpet();
   }
 

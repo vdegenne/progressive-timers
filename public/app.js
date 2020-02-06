@@ -2702,7 +2702,7 @@
 
     let TimerElement = class TimerElement extends LitElement {
         constructor() {
-            super(...arguments);
+            super();
             this.name = '';
             this.initialTime = '1m';
             this.rest = '10m';
@@ -2710,6 +2710,10 @@
             this._level = 0;
             this._countDown = 0;
             this.state = 'stopped';
+            this.notified = false;
+            this.addEventListener('mouseenter', () => {
+                this.notified = false;
+            });
         }
         render() {
             return html `
@@ -2719,6 +2723,7 @@
         <mwc-icon @click=${this.toggleRun}>
           ${this.state === 'stopped' ? 'play_arrow' : 'stop'}
         </mwc-icon>
+        <mwc-icon @click=${this.destruct}>delete</mwc-icon>
       </div>
     </header>
 
@@ -2726,6 +2731,15 @@
       ${this._countDown !== 0 ? this._countDown : this.initialTime}
     </div>
     `;
+        }
+        destruct() {
+            const answer = confirm('are you sure ?');
+            if (!answer) {
+                return;
+            }
+            app.timers.splice(app.timers.indexOf(this), 1);
+            app.saveTimers();
+            app.requestUpdate();
         }
         toggleRun() {
             (this.state === 'running') ? this.stop() : this.run(this._level);
@@ -2766,6 +2780,10 @@
                 this._level++;
                 this.run(this._level);
             }
+            this.notify();
+        }
+        notify() {
+            this.notified = true;
             app.trumpet();
         }
         pause() {
@@ -2781,27 +2799,35 @@
     TimerElement.styles = [css `
     :host {
       display: block;
-      padding: 8px 16px;
-      min-width: 100px;
+      padding: 8px 8px 8px 16px;
     }
 
     :host([state=stopped]) {
-      background-color: black;
+      background-color: grey;
       color: white;
     }
     :host([state=running]) {
-      background-color: #4caf50;
+      background-color: red;
       color: white;
     }
     :host([state=paused]) {
-      background-color: grey;
+      background-color: green;
       color: white;
+    }
+
+    :host([notified]) {
+      background-color: yellow;
+      color: black;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    header > div:first-of-type {
+      margin: 0 26px 0 0;
     }
 
     mwc-icon {
@@ -2834,10 +2860,12 @@
     __decorate([
         property({ reflect: true })
     ], TimerElement.prototype, "state", void 0);
+    __decorate([
+        property({ type: Boolean, reflect: true })
+    ], TimerElement.prototype, "notified", void 0);
     TimerElement = __decorate([
         customElement('timer-element')
     ], TimerElement);
-    //# sourceMappingURL=timer.js.map
 
     /**
      * @license
@@ -11080,7 +11108,7 @@ html {
 
     <div id="timers">${this.timers}</div>
 
-    <mwc-dialog heading="Add Timer" open
+    <mwc-dialog heading="Add Timer"
         @closing=${this.onAddTimerDialogClosing}>
       <form>
         <mwc-textfield label="name" dialogInitialFocus required></mwc-textfield>
@@ -11119,6 +11147,7 @@ html {
         addTimerElement(timerElement) {
             this.timers.push(timerElement);
             this.requestUpdate();
+            this.saveTimers();
         }
         openAddTimerDialog() {
             this.shadowRoot.querySelector('mwc-dialog').open = true;
@@ -11128,8 +11157,13 @@ html {
             audio.play();
         }
         loadTimers() {
-            if (localStorage.getItem('progtimers')) {
-                this.timers = JSON.parse(localStorage.getItem('progtimers'));
+            if (localStorage.getItem('progtimers') !== null) {
+                const timers = JSON.parse(localStorage.getItem('progtimers'));
+                this.timers = timers.map((timer) => {
+                    const element = new TimerElement;
+                    Object.assign(element, timer);
+                    return element;
+                });
             }
             else {
                 this.timers = [];

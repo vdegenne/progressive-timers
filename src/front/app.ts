@@ -13,7 +13,7 @@ import {TimerElement} from './timer';
 @customElement('app-container')
 export class AppContainer extends LitElement {
   /** app timers */
-  @property() protected timers: TimerElement[] = [];
+  @property() timers: TimerElement[] = [];
 
   @query('mwc-dialog') dialog: Dialog;
 
@@ -58,7 +58,7 @@ export class AppContainer extends LitElement {
 
     <div id="timers">${this.timers}</div>
 
-    <mwc-dialog heading="Add Timer" open
+    <mwc-dialog heading="Add Timer"
         @closing=${this.onAddTimerDialogClosing}>
       <form>
         <mwc-textfield label="name" dialogInitialFocus required></mwc-textfield>
@@ -103,6 +103,7 @@ export class AppContainer extends LitElement {
   protected addTimerElement(timerElement: TimerElement) {
     this.timers.push(timerElement);
     this.requestUpdate();
+    this.saveTimers();
   }
 
   public openAddTimerDialog() {
@@ -115,14 +116,19 @@ export class AppContainer extends LitElement {
   }
 
   protected loadTimers() {
-    if (localStorage.getItem('progtimers')) {
-      this.timers = JSON.parse(localStorage.getItem('progtimers')!);
+    if (localStorage.getItem('progtimers') !== null) {
+      const timers = JSON.parse(localStorage.getItem('progtimers')!);
+      this.timers = timers.map((timer: any) => {
+        const element = new TimerElement;
+        Object.assign(element, timer);
+        return element;
+      });
     } else {
       this.timers = [];
     }
   }
 
-  protected saveTimers() {
+  saveTimers() {
     localStorage.setItem('progtimers', JSON.stringify(this.timers));
   }
 };
