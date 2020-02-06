@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "@material/mwc-button": "^0.13.0",
+    "@material/mwc-textfield": "^0.13.0",
+    "lit-element": "^2.2.1"
+  },
+  "devDependencies": {
+    "@material/mwc-dialog": "^0.13.0",
+    "@material/mwc-icon": "^0.13.0",
+    "@vdegenne/mwc-forms-util": "^1.1.2",
+    "clang-format": "^1.3.0",
+    "es-dev-server": "^1.36.2",
+    "koa": "^2.11.0",
+    "koa-router": "^7.4.0",
+    "rollup": "^1.29.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "stringytime": "^1.0.1",
+    "typescript": "^3.7.4"
+  },
+  "scripts": {
+    "build": "rollup -c --environment minify,bundle",
+    "watch": "rollup -cw"
+  }
+}
