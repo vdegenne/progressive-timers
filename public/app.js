@@ -2866,6 +2866,7 @@
     TimerElement = __decorate([
         customElement('timer-element')
     ], TimerElement);
+    //# sourceMappingURL=timer.js.map
 
     /**
      * @license
@@ -11196,7 +11197,7 @@ html {
     }
 
     #timers > timer-element {
-      margin: 0 0 0 10px;
+      margin: 0 0 10px 10px;
     }
     `
     ];
@@ -11209,7 +11210,6 @@ html {
     exports.AppContainer = __decorate([
         customElement('app-container')
     ], exports.AppContainer);
-    //# sourceMappingURL=app.js.map
 
     return exports;
 

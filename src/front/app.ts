@@ -48,7 +48,7 @@ export class AppContainer extends LitElement {
     }
 
     #timers > timer-element {
-      margin: 0 0 0 10px;
+      margin: 0 0 10px 10px;
     }
     `
   ];
