@@ -2728,7 +2728,9 @@
     </header>
 
     <div id="content">
-      ${this._countDown !== 0 ? this._countDown : this.initialTime}
+      ${this._countDown !== 0 ?
+            this._countDown :
+            `${this.initialTime}/${this.rest}/${this.increaseTime}`}
     </div>
     `;
         }
@@ -2742,10 +2744,26 @@
             app.requestUpdate();
         }
         toggleRun() {
-            (this.state === 'running') ? this.stop() : this.run(this._level);
+            if (this.state === 'stopped') {
+                // ask how to start the timer
+                app.onStartStateDialogClosing = (e) => {
+                    switch (e.detail.action) {
+                        case 'initial':
+                            this.run(this._level);
+                            break;
+                        case 'resting':
+                            this.state = 'running';
+                            this.nextAction(false);
+                            break;
+                    }
+                };
+                app.startTimeDialog.open = true;
+            }
+            else {
+                this.stop();
+            }
         }
         stop() {
-            this.state = 'stopped';
             if (this._interval) {
                 clearInterval(this._interval);
                 this._interval = undefined;
@@ -2753,9 +2771,9 @@
             // reset
             this._level = 0;
             this._countDown = 0;
+            this.state = 'stopped';
         }
         run(level) {
-            this.state = 'running';
             this._countDown = (e(this.initialTime) / 1000) +
                 (level * e(this.increaseTime)) / 1000;
             this._interval = setInterval(() => {
@@ -2764,8 +2782,9 @@
                     this.nextAction();
                 }
             }, 1000);
+            this.state = 'running';
         }
-        nextAction() {
+        nextAction(notify = true) {
             if (this.state === 'running') {
                 this.pause();
                 this._countDown = e(this.rest) / 1000; // reduce to seconds
@@ -2780,7 +2799,9 @@
                 this._level++;
                 this.run(this._level);
             }
-            this.notify();
+            if (notify) {
+                this.notify();
+            }
         }
         notify() {
             this.notified = true;
@@ -2866,7 +2887,6 @@
     TimerElement = __decorate([
         customElement('timer-element')
     ], TimerElement);
-    //# sourceMappingURL=timer.js.map
 
     /**
      * @license
@@ -11112,10 +11132,10 @@ html {
     <mwc-dialog heading="Add Timer"
         @closing=${this.onAddTimerDialogClosing}>
       <form>
-        <mwc-textfield label="name" dialogInitialFocus required></mwc-textfield>
-        <mwc-textfield value="3m" label="initial" name="initialTime" required></mwc-textfield>
-        <mwc-textfield value="10m" label="rest" required></mwc-textfield>
-        <mwc-textfield value="1m" label="increaseTime" required></mwc-textfield>
+        <mwc-textfield label="task name" name="name" dialogInitialFocus required></mwc-textfield>
+        <mwc-textfield value="3m" label="task time" name="initialTime" required></mwc-textfield>
+        <mwc-textfield value="10m" label="rest time" name="rest" required></mwc-textfield>
+        <mwc-textfield value="1m" label="increase time" name="increaseTime" required></mwc-textfield>
       </form>
       <mwc-button slot="secondaryAction" dialogAction="cancel">cancel</mwc-button>
       <mwc-button unelevated slot="primaryAction" dialogAction="add">add</mwc-button>
@@ -11123,13 +11143,22 @@ html {
 
     <div style="text-align:center">
       <mwc-button unelevated
-          @click=${this.openAddTimerDialog}
-          
+          @click="${this.openAddTimerDialog}"
           icon="add">
         add a timer
       </mwc-button>
     </div>
+    
+    <mwc-dialog id="start-state-dialog"
+        heading="Starting State"
+        @closing="${(e) => this.onStartStateDialogClosing(e)}">
+      <mwc-button dialogAction="initial" unelevated style="margin:10px 0">Start the task</mwc-button><br>
+      <mwc-button dialogAction="resting" unelevated>Start from resting</mwc-button>
+      <mwc-button slot="primaryAction" dialogAction="cancel">cancel</mwc-button>
+    </mwc-dialog>
     `;
+        }
+        onStartStateDialogClosing(e) {
         }
         onAddTimerDialogClosing(e) {
             const form = this.dialog.querySelector('form');
@@ -11207,9 +11236,13 @@ html {
     __decorate([
         query('mwc-dialog')
     ], exports.AppContainer.prototype, "dialog", void 0);
+    __decorate([
+        query('#start-state-dialog')
+    ], exports.AppContainer.prototype, "startTimeDialog", void 0);
     exports.AppContainer = __decorate([
         customElement('app-container')
     ], exports.AppContainer);
+    //# sourceMappingURL=app.js.map
 
     return exports;
 

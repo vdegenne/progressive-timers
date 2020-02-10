@@ -16,6 +16,7 @@ export class AppContainer extends LitElement {
   @property() timers: TimerElement[] = [];
 
   @query('mwc-dialog') dialog: Dialog;
+  @query('#start-state-dialog') startTimeDialog: Dialog;
 
   constructor() {
     super();
@@ -61,10 +62,10 @@ export class AppContainer extends LitElement {
     <mwc-dialog heading="Add Timer"
         @closing=${this.onAddTimerDialogClosing}>
       <form>
-        <mwc-textfield label="name" dialogInitialFocus required></mwc-textfield>
-        <mwc-textfield value="3m" label="initial" name="initialTime" required></mwc-textfield>
-        <mwc-textfield value="10m" label="rest" required></mwc-textfield>
-        <mwc-textfield value="1m" label="increaseTime" required></mwc-textfield>
+        <mwc-textfield label="task name" name="name" dialogInitialFocus required></mwc-textfield>
+        <mwc-textfield value="3m" label="task time" name="initialTime" required></mwc-textfield>
+        <mwc-textfield value="10m" label="rest time" name="rest" required></mwc-textfield>
+        <mwc-textfield value="1m" label="increase time" name="increaseTime" required></mwc-textfield>
       </form>
       <mwc-button slot="secondaryAction" dialogAction="cancel">cancel</mwc-button>
       <mwc-button unelevated slot="primaryAction" dialogAction="add">add</mwc-button>
@@ -72,13 +73,23 @@ export class AppContainer extends LitElement {
 
     <div style="text-align:center">
       <mwc-button unelevated
-          @click=${this.openAddTimerDialog}
-          
+          @click="${this.openAddTimerDialog}"
           icon="add">
         add a timer
       </mwc-button>
     </div>
+    
+    <mwc-dialog id="start-state-dialog"
+        heading="Starting State"
+        @closing="${(e: CustomEvent) => this.onStartStateDialogClosing(e)}">
+      <mwc-button dialogAction="initial" unelevated style="margin:10px 0">Start the task</mwc-button><br>
+      <mwc-button dialogAction="resting" unelevated>Start from resting</mwc-button>
+      <mwc-button slot="primaryAction" dialogAction="cancel">cancel</mwc-button>
+    </mwc-dialog>
     `;
+  }
+
+  onStartStateDialogClosing(e: CustomEvent) {
   }
 
   protected onAddTimerDialogClosing(e: CustomEvent) {

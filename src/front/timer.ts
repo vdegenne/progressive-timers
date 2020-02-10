@@ -82,7 +82,10 @@ export class TimerElement extends LitElement {
     </header>
 
     <div id="content">
-      ${this._countDown !== 0 ? this._countDown : this.initialTime}
+      ${
+        this._countDown !== 0 ?
+            this._countDown :
+            `${this.initialTime}/${this.rest}/${this.increaseTime}`}
     </div>
     `;
   }
@@ -105,11 +108,29 @@ export class TimerElement extends LitElement {
   }
 
   protected toggleRun() {
-    (this.state === 'running') ? this.stop() : this.run(this._level);
+    if (this.state === 'stopped') {
+      // ask how to start the timer
+      app.onStartStateDialogClosing = (e) => {
+        switch (e.detail.action) {
+          case 'initial':
+            this.run(this._level);
+            break;
+          case 'resting':
+            this.state = 'running';
+            this.nextAction(false);
+            break;
+          default:
+            // do nothing
+            break;
+        }
+      };
+      app.startTimeDialog.open = true;
+    } else {
+      this.stop();
+    }
   }
 
   protected stop() {
-    this.state = 'stopped';
     if (this._interval) {
       clearInterval(this._interval);
       this._interval = undefined;
@@ -117,10 +138,10 @@ export class TimerElement extends LitElement {
     // reset
     this._level = 0;
     this._countDown = 0;
+    this.state = 'stopped';
   }
 
   protected run(level: number) {
-    this.state = 'running';
     this._countDown = (toMilliseconds(this.initialTime) / 1000) +
         (level * toMilliseconds(this.increaseTime)) / 1000;
     this._interval = setInterval(() => {
@@ -129,9 +150,10 @@ export class TimerElement extends LitElement {
         this.nextAction();
       }
     }, 1000);
+    this.state = 'running';
   }
 
-  protected nextAction() {
+  protected nextAction(notify = true) {
     if (this.state === 'running') {
       this.pause();
       this._countDown = toMilliseconds(this.rest) / 1000;  // reduce to seconds
@@ -146,7 +168,9 @@ export class TimerElement extends LitElement {
       this.run(this._level);
     }
 
-    this.notify();
+    if (notify) {
+      this.notify();
+    }
   }
 
   notify() {
