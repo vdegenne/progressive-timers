@@ -42,8 +42,8 @@ export class TimerElement extends LitElement {
     }
 
     :host([notified]) {
-      background-color: yellow;
-      color: black;
+      border: 5px solid #FFEB3B;
+      /* color: black; */
     }
 
     header {
