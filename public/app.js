@@ -292,11 +292,11 @@ function bt(t){return void 0===t&&(t=window),!!function(t){void 0===t&&(t=window
       color: white;
     }
     :host([state=running]) {
-      background-color: red;
+      background-color: blue;
       color: white;
     }
     :host([state=paused]) {
-      background-color: green;
+      background-color: black;
       color: white;
     }
 
