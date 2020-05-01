@@ -1,7 +1,7 @@
 import '@material/mwc-icon';
-import {css, customElement, html, LitElement, property} from 'lit-element';
-import {toMilliseconds} from 'stringytime';
-import {AppContainer} from './app';
+import { css, customElement, html, LitElement, property } from 'lit-element';
+import { toMilliseconds } from 'stringytime';
+import { AppContainer } from './app';
 
 declare let app: AppContainer;
 
@@ -15,10 +15,10 @@ export class TimerElement extends LitElement {
   protected _level = 0;
   @property() protected _countDown = 0;
 
-  @property({reflect: true})
-  protected state: 'stopped'|'paused'|'running' = 'stopped';
+  @property({ reflect: true })
+  protected state: 'stopped' | 'paused' | 'running' = 'stopped';
 
-  @property({type: Boolean, reflect: true}) protected notified = false;
+  @property({ type: Boolean, reflect: true }) protected notified = false;
 
   protected _interval?: NodeJS.Timeout;
 
@@ -83,9 +83,9 @@ export class TimerElement extends LitElement {
 
     <div id="content">
       ${
-        this._countDown !== 0 ?
-            this._countDown :
-            `${this.initialTime}/${this.rest}/${this.increaseTime}`}
+      this._countDown !== 0 ?
+        this._countDown :
+        `${this.initialTime}/${this.rest}/${this.increaseTime}`}
     </div>
     `;
   }
@@ -143,7 +143,7 @@ export class TimerElement extends LitElement {
 
   protected run(level: number) {
     this._countDown = (toMilliseconds(this.initialTime) / 1000) +
-        (level * toMilliseconds(this.increaseTime)) / 1000;
+      (level * toMilliseconds(this.increaseTime)) / 1000;
     this._interval = setInterval(() => {
       if (--this._countDown === 0) {
         clearInterval(this._interval!);
@@ -175,7 +175,7 @@ export class TimerElement extends LitElement {
 
   notify() {
     this.notified = true;
-    app.trumpet();
+    app.notify();
   }
 
   protected pause() {
@@ -185,7 +185,7 @@ export class TimerElement extends LitElement {
   toJSON() {
     return {
       name: this.name, initialTime: this.initialTime, rest: this.rest,
-          increaseTime: this.increaseTime
+      increaseTime: this.increaseTime
     }
   }
 }

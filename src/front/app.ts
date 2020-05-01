@@ -3,12 +3,12 @@ import '@material/mwc-button';
 import '@material/mwc-dialog';
 import '@material/mwc-textfield';
 
-import {Dialog} from '@material/mwc-dialog';
-import {resetForm, serializeForm, validateForm} from '@vdegenne/mwc-forms-util';
-import {css, customElement, html, LitElement, property, query} from 'lit-element';
+import { Dialog } from '@material/mwc-dialog';
+import { resetForm, serializeForm, validateForm } from '@vdegenne/mwc-forms-util';
+import { css, customElement, html, LitElement, property, query } from 'lit-element';
 
-import {globalStyles} from './global-styles';
-import {TimerElement} from './timer';
+import { globalStyles } from './global-styles';
+import { TimerElement } from './timer';
 
 @customElement('app-container')
 export class AppContainer extends LitElement {
@@ -121,8 +121,8 @@ export class AppContainer extends LitElement {
     this.shadowRoot!.querySelector('mwc-dialog')!.open = true;
   }
 
-  public trumpet() {
-    const audio = new Audio('./trumpet.wav');
+  public notify() {
+    const audio = new Audio('./notification.wav');
     audio.play();
   }
 
